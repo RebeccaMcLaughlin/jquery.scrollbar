@@ -425,21 +425,30 @@
                         });
 
                     // handle scrollbar drag'n'drop
-                    scrollx.scroll.bar.on('mousedown' + namespace, function (event) {
-
-                        if (event.which != 1) // lmb
-                            return true;
+                    scrollx.scroll.bar.on('touchstart mousedown' + namespace, function (event) {
+                      if ( event.which !== 0 && event.which !== 1 )
+                        return true;
 
                         var eventPosition = event[(d === 'x') ? 'pageX' : 'pageY'];
+
+                        if ( event.type === 'touchstart' ) {
+                          var eventPosition = (d === 'x') ? event.originalEvent.touches[0].pageX : event.originalEvent.touches[0].pageY;
+                        }
+
                         var initOffset = c[scrollOffset]();
 
                         scrollx.scroll.addClass('scroll-draggable');
 
-                        $(document).on('mousemove' + namespace, function (event) {
-                            var diff = parseInt((event[(d === 'x') ? 'pageX' : 'pageY'] - eventPosition) / scrollx.kx, 10);
-                            if (d === 'x' && o.isRtl && (browser.msie || browser.msedge))
-                                diff = diff * -1;
-                            c[scrollOffset](initOffset + diff);
+                        $(document).on('touchmove mousemove' + namespace, function (event) {
+                          var diff = parseInt((event[(d === 'x') ? 'pageX' : 'pageY'] - eventPosition) / scrollx.kx, 10);
+
+                          if ( event.type === 'touchmove' ) {
+                            var diff = parseInt( ((d === 'x') ? event.originalEvent.touches[0].pageX : event.originalEvent.touches[0].pageY - eventPosition) / scrollx.kx, 10);
+                          }
+
+                          if (d === 'x' && o.isRtl && (browser.msie || browser.msedge))
+                              diff = diff * -1;
+                          c[scrollOffset](initOffset + diff);
                         });
 
                         return S._handleMouseDown(function () {
